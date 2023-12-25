@@ -6,11 +6,16 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const listIngredientsFormSchema = z.object({
-  ingredient: z.string().min(1).max(255), // Exemplo: Limite de 255 caracteres
-  price: z.number().positive(),
-  itemQuantity: z.number().positive(),
-  usedAmount: z.number().positive(),
-  priceToCharge: z.number().positive(),
+  ingredient: z.string()
+    .min(1)
+    .max(255)
+    .transform(ingredient => {
+      return ingredient.trim().split(/\s+/).map(word => word[0].toUpperCase() + word.slice(1)).join(' ');
+    }), // Exemplo: Limite de 255 caracteres
+  price: z.string().transform(parseFloat),
+  itemQuantity: z.string().transform(parseFloat),
+  usedAmount: z.string().transform(parseFloat),
+  priceToCharge: z.string().transform(parseFloat),
 }).refine(data => data.priceToCharge === ((data.price / data.itemQuantity) * data.usedAmount) )
   .refine(data => data.ingredient || data.price || data.itemQuantity || data.usedAmount || data.priceToCharge, {
   message: "Todos os campos são obrigatórios.",
@@ -50,7 +55,7 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="number" 
+            type="text" 
             placeholder="Valor pago" 
             {...register('price')}  
           />
@@ -59,7 +64,7 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="number" 
+            type="text" 
             placeholder="Quantidade do pacote (em gramas ou ml)"
             {...register('itemQuantity')} 
           />
@@ -68,7 +73,7 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="number" 
+            type="text" 
             placeholder="Quantidade utilizada (em gramas ou ml)"
             {...register('usedAmount')} 
           />
@@ -77,11 +82,10 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="number" 
+            type="text" 
             placeholder="Valor a ser cobrado"
             {...register('priceToCharge')}
           />
-          {errors.priceToCharge && <p>{errors.priceToCharge.message}</p>}
         </div>
         <button className="bg-cyan-600 p-3 rounded-xl w-20 hover:bg-cyan-800">Salvar</button>
       </form>
