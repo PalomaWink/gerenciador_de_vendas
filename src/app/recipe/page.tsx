@@ -9,16 +9,12 @@ const listIngredientsFormSchema = z.object({
   ingredient: z.string()
     .min(1)
     .max(255)
-    .transform(ingredient => {
-      return ingredient.trim().split(/\s+/).map(word => word[0].toUpperCase() + word.slice(1)).join(' ');
-    }), // Exemplo: Limite de 255 caracteres
-  price: z.string().transform(parseFloat),
-  itemQuantity: z.string().transform(parseFloat),
-  usedAmount: z.string().transform(parseFloat),
-  priceToCharge: z.string().transform(parseFloat),
-}).refine(data => data.priceToCharge === ((data.price / data.itemQuantity) * data.usedAmount) )
-  .refine(data => data.ingredient || data.price || data.itemQuantity || data.usedAmount || data.priceToCharge, {
-  message: "Todos os campos são obrigatórios.",
+    .transform(ingredient => ingredient.trim().split(/\s+/).map(word => word[0].toUpperCase() + word.slice(1)).join(' ')),
+  price: z.string().min(1).transform((value) => parseFloat(value)),
+  itemQuantity: z.string().min(1).transform((value) => parseFloat(value)),
+  usedAmount: z.string().min(1).transform((value) => parseFloat(value)),
+}).refine(data => data.ingredient && !isNaN(data.price) && !isNaN(data.itemQuantity) && !isNaN(data.usedAmount), {
+  message: "Todos os campos são obrigatórios e devem ser números válidos.",
 });
 export default function Recipe() {
   // o registrer é um hook que registra os inputs do formulário
@@ -27,14 +23,18 @@ export default function Recipe() {
   const { 
       register, 
       handleSubmit,
+      reset,
       formState: { errors },
     } = useForm<Recipe>({
     resolver: zodResolver(listIngredientsFormSchema),
   });
   const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
+  const [priceToCharge, setPriceToCharge] = useState<number>(0);
 
   const createRecipe = (data: Recipe) => {
-    setAllRecipes([...allRecipes, data]);
+    const priceToCharge = (data.price / data.itemQuantity) * data.usedAmount;
+    setAllRecipes([...allRecipes, { ...data, priceToCharge }]);
+    reset();
   }
 
   return (
@@ -55,7 +55,7 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="text" 
+            type="number" 
             placeholder="Valor pago" 
             {...register('price')}  
           />
@@ -64,7 +64,7 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="text" 
+            type="number" 
             placeholder="Quantidade do pacote (em gramas ou ml)"
             {...register('itemQuantity')} 
           />
@@ -73,19 +73,14 @@ export default function Recipe() {
         <div>
           <input 
             className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="text" 
+            type="number" 
             placeholder="Quantidade utilizada (em gramas ou ml)"
             {...register('usedAmount')} 
           />
           {errors.usedAmount && <p>{errors.usedAmount.message}</p>}
         </div>
         <div>
-          <input 
-            className="border-black border-2 mr-2 rounded-xl p-2 shadow-lg" 
-            type="text" 
-            placeholder="Valor a ser cobrado"
-            {...register('priceToCharge')}
-          />
+          {priceToCharge && <p className="text-green-500">{priceToCharge}</p>}
         </div>
         <button className="bg-cyan-600 p-3 rounded-xl w-20 hover:bg-cyan-800">Salvar</button>
       </form>
@@ -98,19 +93,19 @@ export default function Recipe() {
               <th>Preço a ser cobrado</th>
             </tr>
           </thead>
+          <tbody>
       {
         allRecipes.map((recipe, index) => (
-            <tbody key={index}>
-              <tr>
-                <td>{recipe.ingredient}</td>
-                <td>{recipe.price}</td>
-                <td>{recipe.itemQuantity}</td>
-                <td>{recipe.usedAmount}</td>
-                <td>{recipe.priceToCharge}</td>
-              </tr>
-            </tbody>
+          <tr key={index}>
+            <td>{recipe.ingredient}</td>
+            <td>{recipe.price}</td>
+            <td>{recipe.itemQuantity}</td>
+            <td>{recipe.usedAmount}</td>
+            <td>{recipe.priceToCharge?.toFixed(2)}</td>
+          </tr>
         ))
       }
+      </tbody>
       </table>
     </main>
   )

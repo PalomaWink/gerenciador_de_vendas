@@ -3,5 +3,5 @@ export type Recipe = {
   price: number;
   itemQuantity: number;
   usedAmount: number;
-  priceToCharge: number;
+  priceToCharge?: number;
 }
