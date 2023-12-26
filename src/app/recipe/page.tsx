@@ -29,7 +29,7 @@ export default function Recipe() {
     resolver: zodResolver(listIngredientsFormSchema),
   });
   const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
-  const [priceToCharge, setPriceToCharge] = useState<number>(0);
+  const [priceToCharge, _setPriceToCharge] = useState<number>(0);
 
   const createRecipe = (data: Recipe) => {
     const priceToCharge = (data.price / data.itemQuantity) * data.usedAmount;
