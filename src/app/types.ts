@@ -5,3 +5,10 @@ export type Recipe = {
   usedAmount: number;
   priceToCharge?: number;
 }
+
+export type Clients = {
+  clientName: string;
+  amountPaid: number;
+  paymentDate: string;
+  amountDue: number;
+}
