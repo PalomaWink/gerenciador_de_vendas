@@ -108,6 +108,7 @@ export default function Recipe() {
       }
       </tbody>
       </table>
+      {/* Aqui quero colocar por brownie, quantas fatias e valor por fatia */}
     </main>
   )
 }
