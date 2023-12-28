@@ -89,7 +89,8 @@ export default function Recipe() {
             <tr>
               <th>Ingrediente</th>
               <th>Preço</th>
-              <th>Quantidade</th>
+              <th>Quantidade do produto</th>
+              <th>Quantidade utilizada</th>
               <th>Preço a ser cobrado</th>
             </tr>
           </thead>
@@ -98,10 +99,10 @@ export default function Recipe() {
         allRecipes.map((recipe, index) => (
           <tr key={index}>
             <td>{recipe.ingredient}</td>
-            <td>{recipe.price}</td>
-            <td>{recipe.itemQuantity}</td>
-            <td>{recipe.usedAmount}</td>
-            <td>{recipe.priceToCharge?.toFixed(2)}</td>
+            <td>R${recipe.price}</td>
+            <td>{recipe.itemQuantity}g</td>
+            <td>{recipe.usedAmount}g</td>
+            <td>R${recipe.priceToCharge?.toFixed(2)}</td>
           </tr>
         ))
       }
